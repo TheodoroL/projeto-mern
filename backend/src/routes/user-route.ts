@@ -3,4 +3,4 @@ import { UserController } from "../controllers/user-controller";
 
 export const userRouter = Router();
 
-userRouter.get("/user", UserController.soma);
+userRouter.post("/user", UserController.create);
