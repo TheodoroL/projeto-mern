@@ -1,4 +1,4 @@
-export type UserRequestDTO = {
+export type UserModel = {
     name: string,
     username: string,
     email: string;
