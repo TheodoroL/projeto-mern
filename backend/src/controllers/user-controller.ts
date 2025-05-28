@@ -2,34 +2,17 @@ import { Request, Response } from "express";
 import type { UserRequestDTO } from "./dtos/user-request-dto";
 import { UserResponseDTO } from "./dtos/user-response-dto";
 import { UserService } from "../services/user-service";
-import { UserModel } from "../model/User";
-import mongoose from "mongoose";
 
 export class UserController {
     public static async findById(req: Request, res: Response) {
-        const idUser = req.params.id;
-        if (!mongoose.Types.ObjectId.isValid(idUser)) {
-            res.status(400)
-                .send({
-                    message: "ID do usuário invalido"
-                });
-            return;
-        }
-        const findByUser: UserModel | null = await UserService.findById(idUser);
-        if (!findByUser) {
-            res.status(400)
-                .send({
-                    message: "Usuário não encontrado"
-                });
-            return;
-        }
+        const { id, name, username, email, background, avatar } = req.user;
         const responseDTO: UserResponseDTO = {
-            id: findByUser.id!,
-            avatar: findByUser.avatar,
-            background: findByUser.background,
-            email: findByUser.email,
-            name: findByUser.name,
-            username: findByUser.username
+            id,
+            avatar,
+            background,
+            email,
+            name,
+            username
         }
 
         res.status(200).send(responseDTO);
@@ -64,8 +47,10 @@ export class UserController {
             })
             return;
         }
+
         try {
             const createdUser = await UserService.createUser({
+                id: "",
                 avatar,
                 background,
                 password,
@@ -95,7 +80,6 @@ export class UserController {
         }
     }
 
-
     public static async update(req: Request, res: Response) {
         const { email, password, avatar, background, name, username } = req.body;
 
@@ -107,25 +91,8 @@ export class UserController {
             return;
         }
 
-        const idUser = req.params.id;
-        if (!mongoose.Types.ObjectId.isValid(idUser)) {
-            res.status(400)
-                .send({
-                    message: "ID do usuário invalido"
-                });
-            return;
-        }
-
-        const findByUser: UserModel | null = await UserService.findById(idUser);
-        if (!findByUser) {
-            res.status(400)
-                .send({
-                    message: "Usuário não encontrado"
-                });
-            return;
-        }
         await UserService.update({
-            id: findByUser.id,
+            id: req.user!.id,
             name,
             username,
             email,
