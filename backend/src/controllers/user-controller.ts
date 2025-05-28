@@ -94,4 +94,46 @@ export class UserController {
             })
         }
     }
+
+
+    public static async update(req: Request, res: Response) {
+        const { email, password, avatar, background, name, username } = req.body;
+
+        if (!email && !password && !avatar && !background && !name && !username) {
+
+            res.status(400).send({
+                error: "adiciona pelo menos uma informação para atualizar"
+            })
+            return;
+        }
+
+        const idUser = req.params.id;
+        if (!mongoose.Types.ObjectId.isValid(idUser)) {
+            res.status(400)
+                .send({
+                    message: "ID do usuário invalido"
+                });
+            return;
+        }
+
+        const findByUser: UserModel | null = await UserService.findById(idUser);
+        if (!findByUser) {
+            res.status(400)
+                .send({
+                    message: "Usuário não encontrado"
+                });
+            return;
+        }
+        await UserService.update({
+            id: findByUser.id,
+            name,
+            username,
+            email,
+            password,
+            avatar,
+            background
+        });
+
+        res.status(200).send({ message: "atualizado com sucesso" });
+    }
 }

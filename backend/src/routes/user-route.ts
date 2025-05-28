@@ -6,3 +6,4 @@ export const userRouter = Router();
 userRouter.post("/user", UserController.create);
 userRouter.get("/user", UserController.findAllUsers);
 userRouter.get("/user/:id", UserController.findById);
+userRouter.patch("/user/:id", UserController.update);
