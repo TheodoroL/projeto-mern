@@ -80,7 +80,7 @@ export class UserController {
         }
     }
 
-    public static async update(req: Request, res: Response) {
+    public static async update(req: Request<{}, {}, UserRequestDTO>, res: Response) {
         const { email, password, avatar, background, name, username } = req.body;
 
         if (!email && !password && !avatar && !background && !name && !username) {
