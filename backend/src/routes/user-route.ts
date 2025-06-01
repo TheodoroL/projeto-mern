@@ -3,7 +3,7 @@ import { UserController } from "../controllers/user-controller";
 import { GlobalMiddleware } from "../middlewares/global-middleware";
 export const userRouter = Router();
 
-userRouter.post("/user", UserController.create);
-userRouter.get("/user", UserController.findAllUsers);
-userRouter.get("/user/:id", GlobalMiddleware.validId, GlobalMiddleware.validUser, UserController.findById);
-userRouter.patch("/user/:id", GlobalMiddleware.validId, GlobalMiddleware.validUser, UserController.update);
+userRouter.post("/us", UserController.create);
+userRouter.get("/", UserController.findAllUsers);
+userRouter.get("/:id", GlobalMiddleware.validId, GlobalMiddleware.validUser, UserController.findById);
+userRouter.patch("/:id", GlobalMiddleware.validId, GlobalMiddleware.validUser, UserController.update);
