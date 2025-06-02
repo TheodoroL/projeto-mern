@@ -1,36 +1,45 @@
 import { Request, Response } from "express";
-import { AuthLogin } from "./dtos/auth-request-login-dto";
+import { AuthLogin, AuthLoginSchema } from "./dtos/auth-request-login-dto";
 import { AuthService } from "../services/AuthService";
 import { compare } from "bcrypt";
 import { UserModel } from "../model/User";
+
 export class AuthController {
-    public static async login(req: Request<{}, {}, AuthLogin>, res: Response): Promise<void> {
-        const { email, password } = req.body;
-        if (!email || !password) {
-            res.status(400).send("digite um email ou senha valida");
+    public static async login(
+        req: Request<{}, {}, AuthLogin>,
+        res: Response
+    ): Promise<void> {
+        const { success, error, data } = AuthLoginSchema.safeParse(req.body);
+
+        if (!success) {
+            res.status(400).json({
+                error: "Dados inválidos",
+                issues: error.format(),
+            });
             return;
         }
-        try {
-            const isUser: UserModel = await AuthService.loginService(email);
+        const { email, password } = data;
 
-            if (!isUser) {
-                res.status(400).send("Usuário não encontrado");
+        try {
+            const user: UserModel | null = await AuthService.loginService(email);
+
+            if (!user) {
+                res.status(404).json({ error: "Usuário não encontrado" });
+                return;
+            }
+            const isPasswordValid = await compare(password, user.password);
+
+            if (!isPasswordValid) {
+                res.status(401).json({ error: "E-mail ou senha inválidos" });
                 return;
             }
 
-            const passwordIsValid = await compare(password, isUser.password);
+            const token: string = AuthService.generateToken(user.id);
 
-            if (!passwordIsValid) {
-                res.status(400).send("email ou senha invalida");
-                return
-            }
-            res.status(200).send({
-                email,
-                message: "de bom"
-            });
-        }
-        catch {
-            res.status(404).send({ error: "email o senha invalida" });
+            res.status(200).json({ token });
+        } catch (error) {
+            console.error("Erro no login:", error);
+            res.status(500).json({ error: "Erro interno ao tentar realizar login" });
         }
     }
 }

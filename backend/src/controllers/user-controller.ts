@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import type { UserRequestDTO } from "./dtos/user-request-dto";
+import { UserRequestSchema, type UserRequestDTO } from "./dtos/user-request-dto";
 import { UserResponseDTO } from "./dtos/user-response-dto";
 import { UserService } from "../services/user-service";
 
@@ -39,24 +39,22 @@ export class UserController {
     }
 
     public static async create(req: Request<{}, {}, UserRequestDTO>, res: Response<UserResponseDTO | any>): Promise<void> {
-        const { email, password, avatar, background, name, username } = req.body;
-
-        if (!email || !password || !avatar || !background || !name || !username) {
+        const { success, error, data } = UserRequestSchema.safeParse(req.body);
+        if (!success) {
             res.status(400).send({
-                error: "impossivel criar a conta"
-            })
+                ok: false,
+                error: {
+                    type: "validation",
+                    info: error.errors,
+                },
+            });
+
             return;
         }
-
         try {
             const createdUser = await UserService.createUser({
                 id: "",
-                avatar,
-                background,
-                password,
-                email,
-                username,
-                name
+                ...data
             });
 
             if (!createdUser) {
@@ -67,11 +65,11 @@ export class UserController {
             }
             res.status(201).send({
                 id: createdUser._id,
-                name,
-                username,
-                email,
-                avatar,
-                background
+                name: createdUser.name,
+                username: createdUser.username,
+                email: createdUser.email,
+                avatar: createdUser.avatar,
+                background: createdUser.background
             });
         } catch {
             res.status(409).send({
@@ -79,10 +77,8 @@ export class UserController {
             })
         }
     }
-
     public static async update(req: Request<{}, {}, UserRequestDTO>, res: Response) {
         const { email, password, avatar, background, name, username } = req.body;
-
         if (!email && !password && !avatar && !background && !name && !username) {
 
             res.status(400).send({
