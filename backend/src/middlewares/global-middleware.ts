@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Request, Response, NextFunction } from "express";
-import { UserService } from "../services/user-service";
+import { UserService } from "../services/userService";
 import { UserModel } from "../model/User";
 
 export class GlobalMiddleware {

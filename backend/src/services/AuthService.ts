@@ -3,7 +3,7 @@ import { UserModelMongoose } from "../schema/user-schema";
 import { sign } from "jsonwebtoken";
 export class AuthService {
     public static async loginService(email: string): Promise<UserModel> {
-        const user = await UserModelMongoose.findOne({ email }).select("+password");
+        const user: UserModel | null = await UserModelMongoose.findOne({ email }).select("+password");
         if (!user) {
             throw new Error("user not found");
         }

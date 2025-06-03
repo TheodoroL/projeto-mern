@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { UserRequestSchema, type UserRequestDTO } from "./dtos/user-request-dto";
 import { UserResponseDTO } from "./dtos/user-response-dto";
-import { UserService } from "../services/user-service";
+import { UserService } from "../services/userService";
 
 export class UserController {
     public static async findById(req: Request, res: Response) {
