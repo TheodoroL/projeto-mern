@@ -5,6 +5,18 @@ import { NewsResponseDTO } from "./dtos/news-response-dto";
 
 export class NewsController {
     public static async create(req: Request<{}, {}, NewsRequestDTO>, res: Response): Promise<void> {
+        const { authorization } = req.headers;
+        if (!authorization) {
+            res.status(401).send("usuário não autorizado");
+            return;
+        }
+        const parts = authorization.split(" ");
+        const [schema, token] = parts;
+        if (schema !== "Bear") {
+            res.status(401).send("usuário não autorizado");
+            return;
+        }
+
         const { success, error, data } = NewsRequestSchema.safeParse(req.body);
         if (!success) {
             res.status(400).send({ error });
