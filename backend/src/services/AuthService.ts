@@ -5,7 +5,7 @@ export class AuthService {
     public static async loginService(email: string): Promise<UserModel> {
         const user: UserModel | null = await UserModelMongoose.findOne({ email }).select("+password");
         if (!user) {
-            throw new Error("user not found");
+            throw new Error("Usuário ou senha inválidos");
         }
         return user;
     }

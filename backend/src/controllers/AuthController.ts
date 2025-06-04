@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AuthLogin, AuthLoginSchema } from "./dtos/auth-request-login-dto";
-import { AuthService } from "../services/AuthService";
+import { AuthService } from "../services/authService";
 import { compare } from "bcrypt";
 import { UserModel } from "../model/User";
 
@@ -37,9 +37,9 @@ export class AuthController {
             const token: string = AuthService.generateToken(user.id);
 
             res.status(200).json({ token });
-        } catch (error) {
-            console.error("Erro no login:", error);
-            res.status(500).json({ error: "Erro interno ao tentar realizar login" });
+        } catch (e: any) {
+            res.status(500).json({ error: e.message });
+            return;
         }
     }
 }

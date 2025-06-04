@@ -5,18 +5,6 @@ import { NewsResponseDTO } from "./dtos/news-response-dto";
 
 export class NewsController {
     public static async create(req: Request<{}, {}, NewsRequestDTO>, res: Response): Promise<void> {
-        const { authorization } = req.headers;
-        if (!authorization) {
-            res.status(401).send("usuário não autorizado");
-            return;
-        }
-        const parts = authorization.split(" ");
-        const [schema, token] = parts;
-        if (schema !== "Bear") {
-            res.status(401).send("usuário não autorizado");
-            return;
-        }
-
         const { success, error, data } = NewsRequestSchema.safeParse(req.body);
         if (!success) {
             res.status(400).send({ error });
@@ -29,9 +17,20 @@ export class NewsController {
                 likes: [],
                 text: data.text,
                 title: data.title,
-                users: "68378ec053fd3c30c9ac5675",
+                users: req.id,
             });
-            res.status(201).send({ newsData });
+
+            const newsResponse: NewsResponseDTO = {
+                user: newsData._id.toString(),
+                banner: newsData.banner!,
+                text: newsData.text,
+                title: newsData.title!,
+                coments: newsData.coments,
+                likes: newsData.likes
+
+            }
+
+            res.status(201).send({ newsResponse });
         } catch {
             res.status(400).send({ error: "não foi possivel criar uma nova noticia" });
         }
@@ -48,7 +47,9 @@ export class NewsController {
                 title: element.title,
                 text: element.text,
                 banner: element.banner,
-                user: element.users
+                user: element.users,
+                coments: element.coments,
+                likes: element.likes
             }
         });
 
