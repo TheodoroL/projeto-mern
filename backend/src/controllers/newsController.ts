@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { NewsRequestDTO, NewsRequestSchema } from "./dtos/news-request-dto";
+import { NewsPageRequestSchema, NewsPageRequestSDTO, NewsRequestDTO, NewsRequestSchema } from "./dtos/news-request-dto";
 import { NewsService } from "../services/newsService";
-import { NewsResponseDTO } from "./dtos/news-response-dto";
-
+import { NewsResponseDTO, NewsPaginatedResponseDTO } from "./dtos/news-response-dto";
+import { News } from "../model/News";
 export class NewsController {
     public static async create(req: Request<{}, {}, NewsRequestDTO>, res: Response): Promise<void> {
         const { success, error, data } = NewsRequestSchema.safeParse(req.body);
@@ -35,25 +35,54 @@ export class NewsController {
             res.status(400).send({ error: "não foi possivel criar uma nova noticia" });
         }
     }
-    public static async getAll(req: Request, res: Response<NewsResponseDTO[] | null>): Promise<void> {
-        const getAllNews = await NewsService.getAllService();
-        if (!getAllNews) {
-            res.status(200).send(getAllNews);
+    public static async getAll(
+        req: Request<{}, {}, {}, NewsPageRequestSDTO>,
+        res: Response<NewsPaginatedResponseDTO | []>
+    ): Promise<void> {
+        const { success, data } = NewsPageRequestSchema.safeParse(req.query);
+
+        const limit = success ? data.limit : 5;
+        const offset = success ? data.offset : 0;
+        const rawsNews = await NewsService.getAllService(limit, offset);
+        const currentUrl = req.baseUrl;
+        const next: number = limit + offset;
+        const total = await NewsService.countNews()
+        const nextUrl: string | null = next < total ? `${currentUrl}?limit=${limit}&offset=${next}` : null;
+        const previous: number | null = offset - limit < 0 ? null : offset - limit;
+        const previousUrl: string | null = previous !== null ? `${currentUrl}?limit=${limit}&offset=${previous}` : previous;
+        if (!rawsNews) {
+            res.status(200).send([]);
             return;
         }
 
-        const newsResponse: NewsResponseDTO[] = getAllNews.map(element => {
-            return {
-                title: element.title,
-                text: element.text,
-                banner: element.banner,
-                user: element.users,
-                coments: element.coments,
-                likes: element.likes
+        const getAllNews: News[] = rawsNews.map(news => ({
+            title: news.title ?? '',
+            banner: news.banner ?? '',
+            text: news.text ?? '',
+            createAt: news.createAt ?? new Date(),
+            users: typeof news.users === 'string' ? news.users : news.users?.toString() ?? '',
+            likes: news.likes ?? [],
+            coments: news.coments ?? [],
+        }));
+
+        const newsResponse: NewsResponseDTO[] = getAllNews.map(news => ({
+            title: news.title,
+            text: news.text,
+            banner: news.banner,
+            user: news.users,
+            coments: news.coments,
+            likes: news.likes
+        }));
+
+        res.status(200).send(
+            {
+                nextUrl,
+                previousUrl,
+                limit,
+                offset,
+                total,
+                newsResponse
             }
-        });
-
-
-        res.status(200).send(newsResponse);
+        );
     }
 }

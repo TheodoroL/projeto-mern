@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 export const newsSchema = new mongoose.Schema({
     title: {
         type: String,
-        require: true
+        required: true
     },
     banner: {
         type: String,
