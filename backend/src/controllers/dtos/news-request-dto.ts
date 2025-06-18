@@ -11,6 +11,11 @@ export const NewsPageRequestSchema = z.object({
     offset: z.coerce.number()
 })
 
+export const newsQueryTitleSchema = z.object({
+    title: z.string().min(1, "O título é obrigatório"),
+}
+)
+
 
 export type NewsRequestDTO = z.infer<typeof NewsRequestSchema>;
 export type NewsPageRequestSDTO = z.infer<typeof NewsPageRequestSchema>;

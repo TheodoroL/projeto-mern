@@ -37,4 +37,15 @@ export class NewsService {
             })
             .lean<News>();
     }
+    // vai buscar as noticias que contem o termo title
+    // o termo title pode ser uma string vazia, nesse caso, retorna todas as noticias
+    public static async seachByTitle(title: string): Promise<News[] | null> {
+        return await newsModelMonoogse.find({ title: { $regex: title, $options: "i" } })
+            .sort({ _id: -1 })
+            .populate({
+                path: "users",
+                select: "name _id  username email avatar background",
+            })
+            .lean<News[]>();
+    }
 }

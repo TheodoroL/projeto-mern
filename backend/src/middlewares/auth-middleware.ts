@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { verify, JwtPayload } from "jsonwebtoken";
 import { UserService } from "../services/userService";
+import { UserModel } from "../model/User";
 
 export class AuthMiddleware {
     public static async validToken(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -21,7 +22,7 @@ export class AuthMiddleware {
         try {
             const decoded = verify(token, process.env.PASSWORD_JWT) as JwtPayload;
 
-            const user = await UserService.findById(decoded.id);
+            const user: UserModel | null = await UserService.findById(decoded.id);
             if (!user) {
                 res.status(401).send({ message: "token inválido" });
                 return;

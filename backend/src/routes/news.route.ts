@@ -7,4 +7,5 @@ export const newsRouter: Router = Router();
 newsRouter.post("/", AuthMiddleware.validToken, NewsController.create);
 newsRouter.get("/", NewsController.getAll);
 newsRouter.get("/top", NewsController.topNews);
+newsRouter.get("/search", NewsController.seachByTitle);
 newsRouter.get("/:id", NewsController.getById);

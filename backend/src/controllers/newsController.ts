@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { NewsPageRequestSchema, NewsPageRequestSDTO, NewsRequestDTO, NewsRequestSchema } from "./dtos/news-request-dto";
+import { NewsPageRequestSchema, NewsPageRequestSDTO, newsQueryTitleSchema, NewsRequestDTO, NewsRequestSchema } from "./dtos/news-request-dto";
 import { NewsService } from "../services/newsService";
 import { NewsResponseDTO, NewsPaginatedResponseDTO } from "./dtos/news-response-dto";
 export class NewsController {
@@ -117,4 +117,31 @@ export class NewsController {
         };
         res.status(200).send(newsResponse);
     }
+
+    public static async seachByTitle(req: Request, res: Response): Promise<void> {
+        const { success, error, data } = newsQueryTitleSchema.safeParse(req.query);
+
+        if (!success) {
+            res.status(400).send({ error: error.message });
+            return;
+        }
+
+        const news = await NewsService.seachByTitle(data.title);
+        if (!news || news.length === 0) {
+            res.status(404).send({ error: "Nenhuma notícia encontrada com esse título" });
+            return;
+        }
+
+        const newsResponse: NewsResponseDTO[] = news.map(n => ({
+            id: n._id,
+            user: n.users,
+            banner: n.banner,
+            text: n.text,
+            title: n.title,
+            coments: n.coments,
+            likes: n.likes
+        }));
+        res.status(200).send(newsResponse);
+    }
+
 }
