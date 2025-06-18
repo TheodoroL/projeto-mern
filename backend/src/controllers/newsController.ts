@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { NewsPageRequestSchema, NewsPageRequestSDTO, newsQueryTitleSchema, NewsRequestDTO, NewsRequestSchema } from "./dtos/news-request-dto";
+import { newsQueryTitleSchema, NewsRequestDTO, NewsRequestSchema } from "./dtos/news-request-dto";
 import { NewsService } from "../services/newsService";
 import { NewsResponseDTO, NewsPaginatedResponseDTO } from "./dtos/news-response-dto";
 import { News } from "../model/News";
@@ -17,7 +17,7 @@ export class NewsController {
                 likes: [],
                 text: data.text,
                 title: data.title,
-                users: req.id,
+                users: req.user,
             });
 
             const newsResponse: NewsResponseDTO = {
@@ -29,33 +29,17 @@ export class NewsController {
                 likes: newsData.likes
 
             }
-
             res.status(201).send({ newsResponse });
-        } catch {
+        } catch (e) {
+            console.error("Erro ao criar notícia:", e);
             res.status(400).send({ error: "não foi possivel criar uma nova noticia" });
         }
     }
     public static async getAll(
-        req: Request<{}, {}, {}, NewsPageRequestSDTO>,
+        req: Request,
         res: Response<NewsPaginatedResponseDTO | []>
     ): Promise<void> {
-        const { success, data } = NewsPageRequestSchema.safeParse(req.query);
-
-        const limit = success ? data.limit : 5;
-        const offset = success ? data.offset : 0;
-        const rawsNews = await NewsService.getAllService(limit, offset);
-        const currentUrl = req.baseUrl;
-        const next: number = limit + offset;
-        const total = await NewsService.countNews()
-        const nextUrl: string | null = next < total ? `${currentUrl}?limit=${limit}&offset=${next}` : null;
-        const previous: number | null = offset - limit < 0 ? null : offset - limit;
-        const previousUrl: string | null = previous !== null ? `${currentUrl}?limit=${limit}&offset=${previous}` : previous;
-        if (!rawsNews) {
-            res.status(200).send([]);
-            return;
-        }
-
-        const newsResponse: NewsResponseDTO[] = rawsNews.map(news => ({
+        const newsResponse: NewsResponseDTO[] = req.rawsNews.map(news => ({
             id: news._id,
             title: news.title,
             text: news.text,
@@ -64,14 +48,13 @@ export class NewsController {
             coments: news.coments,
             likes: news.likes
         }));
-
         res.status(200).send(
             {
-                nextUrl,
-                previousUrl,
-                limit,
-                offset,
-                total,
+                nextUrl: req.nextUrl,
+                previousUrl: req.previousUrl,
+                limit: req.limit,
+                offset: req.offset,
+                total: req.total,
                 newsResponse
             }
         );
@@ -85,14 +68,13 @@ export class NewsController {
         }
         const newsResponse: NewsResponseDTO = {
             id: news._id,
-            user: news.users,
+            user: news.users._id,
             banner: news.banner,
             text: news.text,
             title: news.title,
             coments: news.coments,
             likes: news.likes
         };
-
         res.status(200).send(newsResponse);
     }
 
@@ -109,7 +91,7 @@ export class NewsController {
         }
         const newsResponse: NewsResponseDTO = {
             id: news._id,
-            user: news.users,
+            user: news.users._id,
             banner: news.banner,
             text: news.text,
             title: news.title,
@@ -135,7 +117,7 @@ export class NewsController {
 
         const newsResponse: NewsResponseDTO[] = news.map(n => ({
             id: n._id,
-            user: n.users,
+            user: n.users._id,
             banner: n.banner,
             text: n.text,
             title: n.title,
@@ -145,7 +127,7 @@ export class NewsController {
         res.status(200).send(newsResponse);
     }
     public static async byUser(req: Request, res: Response): Promise<void> {
-        const userId: string = req.id;
+        const userId: string = req.user._id;
         if (!userId) {
             res.status(400).send({ error: "ID do usuário é obrigatório" });
             return;
@@ -157,7 +139,7 @@ export class NewsController {
         }
         const newsResponse: NewsResponseDTO[] = news.map(n => ({
             id: n._id,
-            user: n.users,
+            user: n.users._id,
             banner: n.banner,
             text: n.text,
             title: n.title,
@@ -167,4 +149,35 @@ export class NewsController {
         res.status(200).send(newsResponse);
     }
 
+    public static async updateNews(req: Request, res: Response): Promise<void> {
+        const { id } = req.params;
+        if (!id) {
+            res.status(400).send({ error: "ID da notícia é obrigatório" });
+            return;
+        }
+        const { success, error, data } = NewsRequestSchema.safeParse(req.body);
+        if (!success) {
+            res.status(400).send({ error });
+            return;
+        }
+        const news = await NewsService.getById(id);
+        if (!news) {
+            res.status(404).send({ error: "Notícia não encontrada" });
+            return;
+        }
+        if (news.users._id.toString() !== req.user._id.toString()) {
+            res.status(403).send({ error: "Você não tem permissão para atualizar esta notícia" });
+            return;
+        }
+        try {
+            const updatedNews = await NewsService.updateNews(id, data);
+            if (!updatedNews) {
+                res.status(404).send({ error: "Notícia não encontrada ou não atualizada" });
+                return;
+            }
+            res.status(200).send({ message: "Notícia atualizada com sucesso", updatedNews });
+        } catch (err) {
+            res.status(500).send({ error: "Erro ao atualizar a notícia" });
+        }
+    }
 }

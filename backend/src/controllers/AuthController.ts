@@ -34,7 +34,7 @@ export class AuthController {
                 return;
             }
 
-            const token: string = AuthService.generateToken(user.id);
+            const token: string = AuthService.generateToken(user._id);
 
             res.status(200).json({ token });
         } catch (e: any) {

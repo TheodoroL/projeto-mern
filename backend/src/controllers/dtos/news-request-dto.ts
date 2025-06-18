@@ -15,7 +15,12 @@ export const newsQueryTitleSchema = z.object({
     title: z.string().min(1, "O título é obrigatório"),
 }
 )
-
+export const newsUpdateRequestSchema = z.object({
+    title: z.string().min(1, "O título é obrigatório").optional(),
+    banner: z.string().url("O banner deve ser uma URL válida").optional(),
+    text: z.string().min(1, "O texto da notícia é obrigatório").optional(),
+});
 
 export type NewsRequestDTO = z.infer<typeof NewsRequestSchema>;
 export type NewsPageRequestSDTO = z.infer<typeof NewsPageRequestSchema>;
+export type newsUpdateRequestSchema = z.infer<typeof newsUpdateRequestSchema>;

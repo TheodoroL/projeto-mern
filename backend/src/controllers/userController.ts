@@ -5,9 +5,9 @@ import { UserService } from "../services/userService";
 
 export class UserController {
     public static async findById(req: Request, res: Response) {
-        const { id, name, username, email, background, avatar } = req.user;
+        const { _id, name, username, email, background, avatar } = req.user;
         const responseDTO: UserResponseDTO = {
-            id,
+            id: _id,
             avatar,
             background,
             email,
@@ -27,7 +27,7 @@ export class UserController {
 
         const allUsersDTOS: UserResponseDTO[] = allUsers.map(user => {
             return {
-                id: user.id ?? "",
+                id: user._id ?? "",
                 name: user.name,
                 username: user.username,
                 email: user.email,
@@ -53,7 +53,7 @@ export class UserController {
         }
         try {
             const createdUser = await UserService.createUser({
-                id: "",
+                _id: "",
                 ...data
             });
 
@@ -88,7 +88,7 @@ export class UserController {
         }
 
         await UserService.update({
-            id: req.user!.id,
+            _id: req.user._id,
             name,
             username,
             email,

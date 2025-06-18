@@ -28,7 +28,7 @@ export class AuthMiddleware {
                 return;
             }
 
-            req.id = user.id;
+            req.user = user;
             next();
         } catch (error: any) {
             res.status(401).send({ message: error.message });

@@ -1,3 +1,4 @@
+import { UserModel } from "./User";
 
 export type News = {
     _id?: string; // ID do Mongoose
@@ -5,7 +6,7 @@ export type News = {
     banner: string;
     text: string;
     createAt?: Date; // opcional, pois o Mongoose define
-    users: string;   // ID do usuário
+    users: UserModel;   // ID do usuário
     likes: any[];
     coments: any[];
 

@@ -5,6 +5,12 @@ declare global {
         interface Request {
             id: string;
             user: UserModel;
+            rawsNews: News[],
+            nextUrl: string | null;
+            previousUrl: string | null;
+            total: number;
+            offset: number;
+            limit: number;
         }
     }
 }

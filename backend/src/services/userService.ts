@@ -17,8 +17,8 @@ export class UserService {
         return await UserModelMongoose.findById(id);
     }
 
-    static async update({ id, avatar, background, name, password, email, username }: UserModel): Promise<UserModel | null> {
-        return await UserModelMongoose.findOneAndUpdate({ _id: id }, {
+    static async update({ _id, avatar, background, name, password, email, username }: UserModel): Promise<UserModel | null> {
+        return await UserModelMongoose.findOneAndUpdate({ _id }, {
             name,
             password,
             email,

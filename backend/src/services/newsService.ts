@@ -1,10 +1,17 @@
 import { News } from "../model/News";
 import { newsModelMonoogse } from "../schema/news-schema";
-
+import { newsUpdateRequestSchema } from "../controllers/dtos/news-request-dto";
 
 export class NewsService {
     public static async createNews(body: News) {
-        return await newsModelMonoogse.create({ ...body });
+        return await newsModelMonoogse.create({
+            banner: body.banner,
+            coments: body.coments,
+            likes: body.likes,
+            text: body.text,
+            title: body.title,
+            users: body.users._id
+        });
     }
     public static async getAllService(limit: number, offset: number) {
         return await newsModelMonoogse.find()
@@ -57,5 +64,14 @@ export class NewsService {
                 select: "username avatar"
             })
             .lean<News[]>();
+    }
+    public static async updateNews(id: string, { title, text, banner }: newsUpdateRequestSchema): Promise<News | null> {
+        return await newsModelMonoogse.findOneAndUpdate({ _id: id }, {
+            title, text, banner
+        }).populate({
+            path: "users",
+            select: "username avatar"
+        })
+            .lean<News>();
     }
 } 
