@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { NewsPageRequestSchema, NewsPageRequestSDTO, NewsRequestDTO, NewsRequestSchema } from "./dtos/news-request-dto";
 import { NewsService } from "../services/newsService";
 import { NewsResponseDTO, NewsPaginatedResponseDTO } from "./dtos/news-response-dto";
-import { News } from "../model/News";
+import { UserModel } from "../model/User";
 export class NewsController {
     public static async create(req: Request<{}, {}, NewsRequestDTO>, res: Response): Promise<void> {
         const { success, error, data } = NewsRequestSchema.safeParse(req.body);
@@ -55,17 +55,7 @@ export class NewsController {
             return;
         }
 
-        const getAllNews: News[] = rawsNews.map(news => ({
-            title: news.title ?? '',
-            banner: news.banner ?? '',
-            text: news.text ?? '',
-            createAt: news.createAt ?? new Date(),
-            users: typeof news.users === 'string' ? news.users : news.users?.toString() ?? '',
-            likes: news.likes ?? [],
-            coments: news.coments ?? [],
-        }));
-
-        const newsResponse: NewsResponseDTO[] = getAllNews.map(news => ({
+        const newsResponse: NewsResponseDTO[] = rawsNews.map(news => ({
             title: news.title,
             text: news.text,
             banner: news.banner,
@@ -84,5 +74,23 @@ export class NewsController {
                 newsResponse
             }
         );
+    }
+
+    public static async topNews(req: Request, res: Response): Promise<void> {
+        const news = await NewsService.topNews();
+        if (!news) {
+            res.status(404).send({ error: "Nenhuma notícia encontrada" });
+            return;
+        }
+        const newsResponse: NewsResponseDTO = {
+            user: news.users,
+            banner: news.banner,
+            text: news.text,
+            title: news.title,
+            coments: news.coments,
+            likes: news.likes
+        };
+
+        res.status(200).send(newsResponse);
     }
 }

@@ -1,3 +1,4 @@
+
 export type News = {
     title: string;
     banner: string;
@@ -8,3 +9,4 @@ export type News = {
     coments: any[];
 
 }
+

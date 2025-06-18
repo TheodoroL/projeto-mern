@@ -1,6 +1,7 @@
 import { News } from "../model/News";
 import { newsModelMonoogse } from "../schema/news-schema";
 
+
 export class NewsService {
     public static async createNews(body: News) {
         return await newsModelMonoogse.create({ ...body });
@@ -10,10 +11,22 @@ export class NewsService {
             .sort({ _id: -1 })
             .skip(offset)
             .limit(limit)
-            .lean();
+            .lean<News[]>();
         ;
     }
     public static async countNews(): Promise<number> {
         return await newsModelMonoogse.countDocuments();
+    }
+    // busca o top news, ou seja, a mais recente
+    public static async topNews(): Promise<News | null> {
+        const news = await newsModelMonoogse.findOne()
+            .sort({ _id: -1 })
+            .populate({
+                path: "users",
+                select: "name _id  username email avatar background",
+            })
+            .lean<News>();
+
+        return news;
     }
 }
