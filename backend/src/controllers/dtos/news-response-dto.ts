@@ -1,5 +1,6 @@
 import { z } from "zod";
 export const NewsRequestSchema = z.object({
+    id: z.string().uuid().optional(),
     title: z.string().min(1, "O título é obrigatório"),
     banner: z.string().url("O banner deve ser uma URL válida"),
     text: z.string().min(1, "O texto da notícia é obrigatório"),

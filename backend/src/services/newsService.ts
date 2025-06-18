@@ -29,4 +29,12 @@ export class NewsService {
 
         return news;
     }
+    public static async getById(id: string): Promise<News | null> {
+        return await newsModelMonoogse.findById(id)
+            .populate({
+                path: "users",
+                select: "name _id  username email avatar background",
+            })
+            .lean<News>();
+    }
 }

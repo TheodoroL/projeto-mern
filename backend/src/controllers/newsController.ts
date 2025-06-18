@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { NewsPageRequestSchema, NewsPageRequestSDTO, NewsRequestDTO, NewsRequestSchema } from "./dtos/news-request-dto";
 import { NewsService } from "../services/newsService";
 import { NewsResponseDTO, NewsPaginatedResponseDTO } from "./dtos/news-response-dto";
-import { UserModel } from "../model/User";
 export class NewsController {
     public static async create(req: Request<{}, {}, NewsRequestDTO>, res: Response): Promise<void> {
         const { success, error, data } = NewsRequestSchema.safeParse(req.body);
@@ -56,6 +55,7 @@ export class NewsController {
         }
 
         const newsResponse: NewsResponseDTO[] = rawsNews.map(news => ({
+            id: news._id,
             title: news.title,
             text: news.text,
             banner: news.banner,
@@ -83,6 +83,7 @@ export class NewsController {
             return;
         }
         const newsResponse: NewsResponseDTO = {
+            id: news._id,
             user: news.users,
             banner: news.banner,
             text: news.text,
@@ -91,6 +92,29 @@ export class NewsController {
             likes: news.likes
         };
 
+        res.status(200).send(newsResponse);
+    }
+
+    public static async getById(req: Request, res: Response): Promise<void> {
+        const { id } = req.params;
+        if (!id) {
+            res.status(400).send({ error: "ID da notícia é obrigatório" });
+            return;
+        }
+        const news = await NewsService.getById(id);
+        if (!news) {
+            res.status(404).send({ error: "Notícia não encontrada" });
+            return;
+        }
+        const newsResponse: NewsResponseDTO = {
+            id: news._id,
+            user: news.users,
+            banner: news.banner,
+            text: news.text,
+            title: news.title,
+            coments: news.coments,
+            likes: news.likes
+        };
         res.status(200).send(newsResponse);
     }
 }

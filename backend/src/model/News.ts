@@ -1,5 +1,6 @@
 
 export type News = {
+    _id?: string; // ID do Mongoose
     title: string;
     banner: string;
     text: string;
