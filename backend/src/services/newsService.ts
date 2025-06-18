@@ -48,4 +48,14 @@ export class NewsService {
             })
             .lean<News[]>();
     }
-}
+
+    public static async getByUserId(userId: string): Promise<News[] | null> {
+        return await newsModelMonoogse.find({ users: userId })
+            .sort({ _id: -1 })
+            .populate({
+                path: "users",
+                select: "username avatar"
+            })
+            .lean<News[]>();
+    }
+} 
