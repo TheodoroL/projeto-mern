@@ -150,27 +150,14 @@ export class NewsController {
     }
 
     public static async updateNews(req: Request, res: Response): Promise<void> {
-        const { id } = req.params;
-        if (!id) {
-            res.status(400).send({ error: "ID da notícia é obrigatório" });
-            return;
-        }
+
         const { success, error, data } = NewsRequestSchema.safeParse(req.body);
         if (!success) {
             res.status(400).send({ error });
             return;
         }
-        const news = await NewsService.getById(id);
-        if (!news) {
-            res.status(404).send({ error: "Notícia não encontrada" });
-            return;
-        }
-        if (news.users._id.toString() !== req.user._id.toString()) {
-            res.status(403).send({ error: "Você não tem permissão para atualizar esta notícia" });
-            return;
-        }
         try {
-            const updatedNews = await NewsService.updateNews(id, data);
+            const updatedNews = await NewsService.updateNews(req.id, data);
             if (!updatedNews) {
                 res.status(404).send({ error: "Notícia não encontrada ou não atualizada" });
                 return;
@@ -178,6 +165,14 @@ export class NewsController {
             res.status(200).send({ message: "Notícia atualizada com sucesso", updatedNews });
         } catch (err) {
             res.status(500).send({ error: "Erro ao atualizar a notícia" });
+        }
+    }
+    public static async deleteNews(req: Request, res: Response): Promise<void> {
+        try {
+            await NewsService.deleteNews(req.id);
+            res.status(200).send({ message: "Notícia excluída com sucesso" });
+        } catch (err) {
+            res.status(500).send({ error: "Erro ao excluir a notícia" });
         }
     }
 }

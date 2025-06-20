@@ -74,4 +74,7 @@ export class NewsService {
         })
             .lean<News>();
     }
+    public static async deleteNews(id: string): Promise<News | null> {
+        return await newsModelMonoogse.findOneAndDelete({ _id: id })
+    }
 } 

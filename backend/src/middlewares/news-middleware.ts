@@ -27,4 +27,24 @@ export class NewsMiddleware {
         next();
     }
 
+    public static async validNewsId(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { id } = req.params;
+        if (!id) {
+            res.status(400).send({ error: "ID da notícia não fornecido" });
+            return;
+        }
+        const news = await NewsService.getById(id);
+        if (!news) {
+            res.status(404).send({ error: "Notícia não encontrada" });
+            return;
+        }
+        if (news.users._id.toString() !== req.user._id.toString()) {
+            res.status(403).send({ error: "Você não tem permissão para atualizar esta notícia" });
+            return;
+        }
+
+        req.id = id;;
+        next();
+    }
+
 }
