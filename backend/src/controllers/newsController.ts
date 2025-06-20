@@ -31,14 +31,10 @@ export class NewsController {
             }
             res.status(201).send({ newsResponse });
         } catch (e) {
-            console.error("Erro ao criar notícia:", e);
             res.status(400).send({ error: "não foi possivel criar uma nova noticia" });
         }
     }
-    public static async getAll(
-        req: Request,
-        res: Response<NewsPaginatedResponseDTO | []>
-    ): Promise<void> {
+    public static async getAll(req: Request, res: Response<NewsPaginatedResponseDTO | []>): Promise<void> {
         const newsResponse: NewsResponseDTO[] = req.rawsNews.map(news => ({
             id: news._id,
             title: news.title,
@@ -103,7 +99,6 @@ export class NewsController {
 
     public static async seachByTitle(req: Request, res: Response): Promise<void> {
         const { success, error, data } = newsQueryTitleSchema.safeParse(req.query);
-
         if (!success) {
             res.status(400).send({ error: error.message });
             return;
@@ -150,7 +145,6 @@ export class NewsController {
     }
 
     public static async updateNews(req: Request, res: Response): Promise<void> {
-
         const { success, error, data } = NewsRequestSchema.safeParse(req.body);
         if (!success) {
             res.status(400).send({ error });
@@ -173,6 +167,21 @@ export class NewsController {
             res.status(200).send({ message: "Notícia excluída com sucesso" });
         } catch (err) {
             res.status(500).send({ error: "Erro ao excluir a notícia" });
+        }
+    }
+    public static async likeNews(req: Request, res: Response): Promise<void> {
+        const userId = req.user._id;
+        const newsId = req.id;
+        try {
+            const likedNews = await NewsService.likeNews(newsId, userId);
+            if (!likedNews) {
+                await NewsService.unlikeNews(newsId, userId);
+                res.status(200).send({ message: "Like da noticia tirado com sucesso!" });
+                return;
+            }
+            res.status(200).send({ message: "Notícia curtida com sucesso!" });
+        } catch (err) {
+            res.status(500).send({ error: "Erro ao curtir a notícia" });
         }
     }
 }

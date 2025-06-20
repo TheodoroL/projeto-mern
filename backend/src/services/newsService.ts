@@ -77,4 +77,22 @@ export class NewsService {
     public static async deleteNews(id: string): Promise<News | null> {
         return await newsModelMonoogse.findOneAndDelete({ _id: id })
     }
+    public static async likeNews(id: string, userId: string): Promise<News | null> {
+        // Atualiza a notícia adicionando um like do usuário, somente se ele ainda não tiver curtido
+        return await newsModelMonoogse.findOneAndUpdate({
+            _id: id, // Busca a notícia pelo id
+            "likes.userId": { $ne: userId } // Garante que o usuário ainda não curtiu
+        }, {
+            $push: { likes: { userId, created: new Date() } } // Adiciona o like do usuário com a data atual
+        })
+    }
+    public static async unlikeNews(id: string, userId: string): Promise<News | null> {
+        // Atualiza a notícia removendo o like do usuário, somente se ele já tiver curtido
+        return await newsModelMonoogse.findOneAndUpdate({
+            _id: id, // Busca a notícia pelo id
+            "likes.userId": userId // Garante que o usuário já curtiu
+        }, {
+            $pull: { likes: { userId } } // Remove o like do usuário
+        });
+    }
 } 
