@@ -21,6 +21,10 @@ export const newsUpdateRequestSchema = z.object({
     text: z.string().min(1, "O texto da notícia é obrigatório").optional(),
 });
 
+export const newsCommentRequestSchema = z.object({
+    comment: z.string().min(1, "O comentário é obrigatório"),
+});
+
 export type NewsRequestDTO = z.infer<typeof NewsRequestSchema>;
 export type NewsPageRequestSDTO = z.infer<typeof NewsPageRequestSchema>;
 export type newsUpdateRequestSchema = z.infer<typeof newsUpdateRequestSchema>;

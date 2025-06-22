@@ -95,4 +95,24 @@ export class NewsService {
             $pull: { likes: { userId } } // Remove o like do usuário
         });
     }
+    public static async commentNews(id: string, userId: string, comment: string): Promise<News | null> {
+        const idComent = Math.floor(Date.now() * Math.random()).toString(36);
+
+        return await newsModelMonoogse.findOneAndUpdate(
+            { _id: id },
+            { $push: { coments: { idComent, userId, comment, created: new Date() } } }
+        )
+
+    }
+    public static async deleteComment(id: string, commentId: string, userId: string): Promise<News | null> {
+        return await newsModelMonoogse.findOneAndUpdate(
+            {
+                _id: id,
+                "coments.idComent": commentId,
+                "coments.userId": userId
+
+            },
+            { $pull: { coments: { idComent: commentId, userId } } }
+        );
+    }
 } 

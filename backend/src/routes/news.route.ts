@@ -13,4 +13,6 @@ newsRouter.get("/search", NewsController.seachByTitle);
 newsRouter.get("/:id", AuthMiddleware.validToken, NewsController.getById);
 newsRouter.patch("/:id", AuthMiddleware.validToken, NewsMiddleware.validNewsId, NewsController.updateNews);
 newsRouter.patch("/like/:id", AuthMiddleware.validToken, NewsMiddleware.validNewsId, NewsController.likeNews);
+newsRouter.patch("/coment/:id", AuthMiddleware.validToken, NewsMiddleware.validNewsId, NewsController.commentNews);
+newsRouter.patch("/coment/:id/:commentId", AuthMiddleware.validToken, NewsMiddleware.validNewsId, NewsController.deleteComment);
 newsRouter.delete("/:id", AuthMiddleware.validToken, NewsMiddleware.validNewsId, NewsController.deleteNews);

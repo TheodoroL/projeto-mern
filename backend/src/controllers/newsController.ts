@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { newsQueryTitleSchema, NewsRequestDTO, NewsRequestSchema } from "./dtos/news-request-dto";
+import { newsQueryTitleSchema, NewsRequestDTO, NewsRequestSchema, newsCommentRequestSchema } from "./dtos/news-request-dto";
 import { NewsService } from "../services/newsService";
 import { NewsResponseDTO, NewsPaginatedResponseDTO } from "./dtos/news-response-dto";
 import { News } from "../model/News";
@@ -122,12 +122,7 @@ export class NewsController {
         res.status(200).send(newsResponse);
     }
     public static async byUser(req: Request, res: Response): Promise<void> {
-        const userId: string = req.user._id;
-        if (!userId) {
-            res.status(400).send({ error: "ID do usuário é obrigatório" });
-            return;
-        }
-        const news: News[] | null = await NewsService.getByUserId(userId);
+        const news: News[] | null = await NewsService.getByUserId(req.user._id);
         if (!news || news.length === 0) {
             res.status(404).send({ error: "Nenhuma notícia encontrada para este usuário" });
             return;
@@ -170,18 +165,50 @@ export class NewsController {
         }
     }
     public static async likeNews(req: Request, res: Response): Promise<void> {
-        const userId = req.user._id;
-        const newsId = req.id;
         try {
-            const likedNews = await NewsService.likeNews(newsId, userId);
+            const likedNews = await NewsService.likeNews(req.id, req.user._id);
             if (!likedNews) {
-                await NewsService.unlikeNews(newsId, userId);
+                await NewsService.unlikeNews(req.id, req.user._id);
                 res.status(200).send({ message: "Like da noticia tirado com sucesso!" });
                 return;
             }
             res.status(200).send({ message: "Notícia curtida com sucesso!" });
         } catch (err) {
             res.status(500).send({ error: "Erro ao curtir a notícia" });
+        }
+    }
+    public static async commentNews(req: Request, res: Response): Promise<void> {
+        const { success, error, data } = newsCommentRequestSchema.safeParse(req.body);
+        if (!success) {
+            res.status(400).send({ error: error.message });
+            return;
+        }
+        try {
+            const updatedNews = await NewsService.commentNews(req.id, req.user._id, data.comment);
+            if (!updatedNews) {
+                res.status(404).send({ error: "Notícia não encontrada" });
+                return;
+            }
+            res.status(200).send({ message: "Comentário adicionado com sucesso!" });
+        } catch (err) {
+            res.status(500).send({ error: "Erro ao adicionar comentário" });
+        }
+    }
+    public static async deleteComment(req: Request, res: Response): Promise<void> {
+        const { commentId } = req.params;
+        if (!commentId) {
+            res.status(400).send({ error: "ID da notícia e ID do comentário são obrigatórios" });
+            return;
+        }
+        try {
+            const deleteComment = await NewsService.deleteComment(req.id, commentId, req.user._id);
+            if (!deleteComment) {
+                res.status(404).send({ error: "Comentário não encontrado" });
+                return;
+            }
+            res.status(200).send({ message: "Comentário excluído com sucesso!" });
+        } catch (err) {
+            res.status(500).send({ error: "Erro ao excluir comentário" });
         }
     }
 }
