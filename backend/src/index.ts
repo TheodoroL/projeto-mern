@@ -4,6 +4,7 @@ import { userRouter } from "./routes/user.route";
 import { connectDatabase } from "./database/database";
 import { authRoute } from "./routes/auth.route";
 import { newsRouter } from "./routes/news.route";
+import { swaggerRouter } from "./routes/swagger.route";
 
 const app = express();
 connectDatabase();
@@ -11,4 +12,5 @@ app.use(express.json());
 app.use("/user", userRouter);
 app.use("/auth", authRoute);
 app.use("/news", newsRouter);
+app.use("/docs", swaggerRouter);
 app.listen(process.env.PORT ?? 8080, () => console.log(`api on`));
