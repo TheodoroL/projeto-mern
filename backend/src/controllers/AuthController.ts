@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AuthLogin, AuthLoginSchema } from "./dtos/auth-request-login-dto";
-import { AuthService } from "../services/authService";
+import { AuthService } from "../services/AuthService";
 import { compare } from "bcrypt";
 import { UserModel } from "../model/User";
 
