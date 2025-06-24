@@ -1,13 +1,14 @@
 import express from "express";
-import "dotenv/config"
+import "dotenv/config";
 import { userRouter } from "./routes/user.route";
 import { connectDatabase } from "./database/database";
 import { authRoute } from "./routes/auth.route";
 import { newsRouter } from "./routes/news.route";
 import { swaggerRouter } from "./routes/swagger.route";
-
+import cors from "cors";
 const app = express();
 connectDatabase();
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use("/user", userRouter);
 app.use("/auth", authRoute);
