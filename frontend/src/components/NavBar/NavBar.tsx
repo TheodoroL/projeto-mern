@@ -4,7 +4,7 @@ export function NavBar() {
     return (
         <>
             <Navbar>
-                <Div className="input-search-space">
+                <Div>
                     <i className="bi bi-search"></i>
                     <input type="text" placeholder="busca pela sua noticia..." />
                 </Div>
