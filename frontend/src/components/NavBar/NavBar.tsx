@@ -1,18 +1,18 @@
 import logo from "../../images/LogoBN.png";
-import "./navbar.css"
+import { Button, Navbar, ImageLogo, Div } from "./NavbarStyle";
 export function NavBar() {
     return (
         <>
-            <nav>
-                <div className="input-search-space">
+            <Navbar>
+                <Div className="input-search-space">
                     <i className="bi bi-search"></i>
                     <input type="text" placeholder="busca pela sua noticia..." />
-
-                </div>
-                <img src={logo} alt="logo do site"></img>
-                <button>entrar</button>
-            </nav>
+                </Div>
+                <ImageLogo src={logo} alt="logo do site"></ImageLogo>
+                <Button>entrar</Button>
+            </Navbar>
 
         </>
     );
 }
+
