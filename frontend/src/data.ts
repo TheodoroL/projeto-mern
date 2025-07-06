@@ -50,5 +50,12 @@ export const listNews: News[] = [
         image: "https://i.pinimg.com/736x/5d/ce/b2/5dceb2e504c71e5b8d61f25a46e1c9ef.jpg",
         likes: 4,
         coments: 0
+    },
+    {
+        title: "Noticia 8",
+        text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident minima voluptatum molestias consectetur tempora quae numquam eveniet architecto earum culpa. Iste distinctio quae fugit ipsum at cupiditate harum facilis dolores.",
+        image: "https://i.pinimg.com/736x/5d/ce/b2/5dceb2e504c71e5b8d61f25a46e1c9ef.jpg",
+        likes: 12,
+        coments: 12
     }
 ];
