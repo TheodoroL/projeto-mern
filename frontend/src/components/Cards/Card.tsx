@@ -1,14 +1,18 @@
-import { type News } from "../../data";
+import { type News } from "../../model/newsModel";
+import { TextLimit } from "../TextLimit/TextLimit";
 import { CardBody, CardContainer, CardFooter } from "./CardStyle";
-export function Card({ title, image, coments, text, likes }: News) {
+export function Card({ title, banner, coments, text, likes }: News) {
     return (
         <CardContainer>
             <CardBody>
                 <div>
                     <h2>{title}</h2>
-                    <p>{text}</p>
+                    <img src={banner} alt="imagem zika" />
                 </div>
-                <img src={image} alt="imagem zika" />
+                <TextLimit
+                    text={text}
+                    limit={150}
+                />
             </CardBody>
             <CardFooter>
                 <div>
